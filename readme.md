@@ -1,5 +1,5 @@
 
-# Easy Database for development
+# Docker Based Ready Database for development
 Available Databases:
 	
 

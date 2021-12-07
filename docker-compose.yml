@@ -1,0 +1,71 @@
+version: '3'
+
+services:
+  mysqlserver:
+    container_name: mysql
+    image: mysql:latest
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=toor
+    ports:
+     - "3306:3306"
+    networks:
+      - "dbnet"
+    volumes:
+      - mysqlserver_volume:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 81:80
+    environment:
+      PMA_HOST: mysqlserver
+      PMA_USER: root
+      PMA_PASSWORD: toor
+      #- PMA_ARBITRARY=1
+    networks:
+      - "dbnet"
+
+    depends_on:
+     - "mysqlserver"
+
+  mongodbserver:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: toor
+
+    ports:
+      - 27017:27017
+    networks:
+      - "dbnet"
+
+    volumes:
+      - mongodbserver_volume:/data/db
+      - mongodb_config_volume:/data/configdb
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: toor
+      ME_CONFIG_MONGODB_URL: mongodb://root:toor@mongodbserver:27017/
+
+    ports:
+      - 82:8081
+    networks:
+      - "dbnet"
+
+    depends_on:
+      - "mongodbserver"
+
+networks:
+  dbnet:
+    driver: bridge
+
+volumes:
+  mysqlserver_volume:
+  mongodbserver_volume:
+  mongodb_config_volume:
